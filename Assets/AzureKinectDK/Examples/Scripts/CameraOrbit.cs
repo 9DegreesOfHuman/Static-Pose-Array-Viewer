@@ -12,7 +12,7 @@ public class CameraOrbit : MonoBehaviour
         {
             if (Input.GetMouseButton(0))
             {
-                Debug.Log(parent.GetChild(0).name);
+                // Debug.Log(parent.GetChild(0).name);
                 transform.LookAt(parent.GetChild(0));
                 Vector2 rotateDir = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
 
