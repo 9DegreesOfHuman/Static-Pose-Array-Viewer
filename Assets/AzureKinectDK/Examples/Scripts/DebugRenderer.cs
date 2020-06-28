@@ -22,6 +22,7 @@ public class DebugRenderer : MonoBehaviour
     string[] poseLabels;
     public Text text_currentSkeletonIndex;
     float x;
+    public InputField skeletonIndexInput;
 
     void Start(){
         Debug.Log("start");
@@ -61,6 +62,19 @@ public class DebugRenderer : MonoBehaviour
         currentPoseCoords = _currentFile[1].Split(',');
 
         return 0;
+    }
+    
+    public void loadSkeletonFromInput() {
+        string value = skeletonIndexInput.text;
+        if(string.IsNullOrEmpty(value)) Debug.LogError("Player Name is empty");
+        
+        if (Int32.TryParse(value, out int numValue)) {
+            skeletonIndexToLoad = numValue;
+            // loadSkeleton(numValue);
+            return;
+        }
+        
+        Debug.Log($"Int32.TryParse could not parse '{value}' to an int.");
     }
     int loadSkeleton(int idxToLoad){
         if (_currentFile == null || _currentFile.Length < 2) // header + data row
