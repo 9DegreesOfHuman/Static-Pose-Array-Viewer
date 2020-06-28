@@ -146,13 +146,12 @@ public class DebugRenderer : MonoBehaviour
     }
 
     public void writePoseArrayToFile(){
-        string currFilePath = filePaths[currentFileIndex];
-        // string folder = @"squat-front-100-dan-csv\";
-        string[] folderParts = folderPath.Split('\\');
-        string folder = folderParts[folderParts.Length - 1] + @"\";
+        string[] folderParts = folderPath.Split('\\');                                          // ["D:", "Downloads", "squat-front-100-dan-csv"]
+        string folder = folderParts[folderParts.Length - 1] + @"\";                             //                     "squat-front-100-dan-csv\"
 
-        string[] parts = currFilePath.Split(new string[] { folder }, StringSplitOptions.None);
-        string newFilePath = parts[0] + folder + @"labelledPoses\" + parts[1];
+        string currFilePath = filePaths[currentFileIndex];                                      // "D:\Downloads\squat-front-100-dan-csv\6112020_101909-PM.txt"
+        string[] parts = currFilePath.Split(new string[] { folder }, StringSplitOptions.None);  // ["D:\Downloads\",                                  "6112020_101909-PM.txt"]
+        string newFilePath = parts[0] + folder + @"labelledPoses\" + parts[1];                  // "D:\Downloads\squat-front-100-dan-csv\labelledPoses\6112020_101909-PM.txt"
         // using(StreamWriter writetext = new StreamWriter(folderPath)){
         //     for(int i=0;i<_currentFile.Length;i++) {
         //         writetext.WriteLine(_currentFile[i] + poseLabels[i]);
@@ -177,13 +176,9 @@ public class DebugRenderer : MonoBehaviour
         Debug.Log("get files");
         DirectoryInfo d = new DirectoryInfo(folderPath);
         FileInfo[] Files = d.GetFiles("*.txt");
-        // Debug.Log(Files[0].Directory); // D:\Downloads\squat-front-100-dan-csv instance of folder
-        // Debug.Log(Files[0].DirectoryName); // D:\Downloads\squat-front-100-dan-csv string
-        // Debug.Log(Files[0].Name); // 6112020_101909-PM.txt file name
-        // Debug.Log(Files[0].FullName); // D:\Downloads\squat-front-100-dan-csv\6112020_101909-PM.txt full path of dir or file
-
+        
         string[] filePaths = new string[Files.Length];
-        for (int i=0;i<Files.Length;i++) // foreach(FileInfo file in Files )
+        for (int i=0;i<Files.Length;i++)
         {
             filePaths[i] = Files[i].FullName;
         }
