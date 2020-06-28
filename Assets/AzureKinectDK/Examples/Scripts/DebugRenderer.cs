@@ -11,6 +11,7 @@ public class DebugRenderer : MonoBehaviour
     Skeleton skeleton;
     GameObject[] blockman;
     public GameObject blockmanParent;
+    // public GameObject blockmanParentRotateAxis;
     // public Renderer renderer;
     public string folderPath = @"D:\Downloads\squat-front-100-dan-csv";
     string[] filePaths;
@@ -29,7 +30,9 @@ public class DebugRenderer : MonoBehaviour
         blockman = makeBlockman();
         // blockman.parent = blockmanParent.transform;
         // blockmanParent.transform.Rotate(0.0f, 90.0f, 0.0f);
-        // blockmanParent.transform.RotateAround(transform.position, transform.up, Time.deltaTime * 90f);
+        // Vector3 target = new Vector3(0.55f, 0.0f, 4.75f);
+        // blockmanParent.transform.RotateAround(target, Vector3.up, Time.deltaTime * 33.0f);
+        // blockmanParent.transform.RotateAround(blockmanParentRotateAxis.transform.position, Vector3.up, Time.deltaTime * 33.0f);
         // blockmanParent.transform.rotation = Quaternion.Euler(90,0,0);
         filePaths = getPoseFiles();
         loadFile(currentFileIndex);
