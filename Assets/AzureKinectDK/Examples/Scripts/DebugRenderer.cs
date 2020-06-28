@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,24 +10,30 @@ public class DebugRenderer : MonoBehaviour
 {
     Skeleton skeleton;
     GameObject[] blockman;
-    public Renderer renderer;
+    public GameObject blockmanParent;
+    // public Renderer renderer;
     string[] filePaths;
     int currentFileIndex = 0;
     string[] _currentFile;
     int currentSkeletonIndex = 1;
+    int skeletonIndexToLoad = 1;
     string[] currentPoseCoords;
-    Boolean advanceSkeleton = false;
+    string[] poseLabels;
+    public Text text_currentSkeletonIndex;
+    float x;
 
-    void Start()
-    {
+    void Start(){
         Debug.Log("start");
         blockman = makeBlockman();
+        // blockman.parent = blockmanParent.transform;
+        // blockmanParent.transform.Rotate(0.0f, 90.0f, 0.0f);
+        // blockmanParent.transform.RotateAround(transform.position, transform.up, Time.deltaTime * 90f);
+        // blockmanParent.transform.rotation = Quaternion.Euler(90,0,0);
         filePaths = getPoseFiles();
         loadFile(currentFileIndex);
     }
 
-    int loadFile(int fileIndex)
-    {
+    int loadFile(int fileIndex){
         if (filePaths == null || filePaths.Length < 1)
         {
             Debug.Log("filePaths array is null or empty");
@@ -41,6 +48,7 @@ public class DebugRenderer : MonoBehaviour
         string currentFilePath = filePaths[fileIndex];
         Debug.Log(currentFilePath);
         _currentFile = System.IO.File.ReadAllLines(@currentFilePath);
+        poseLabels = new string[_currentFile.Length];
         // Debug.Log(lines[0]); // headers
         
         if (_currentFile == null || _currentFile.Length < 2) // header + data row
@@ -53,20 +61,16 @@ public class DebugRenderer : MonoBehaviour
 
         return 0;
     }
-    int loadNextSkeleton(int currIdx)
-    {
-        int nextIdx = currIdx + 1;
-
+    int loadSkeleton(int idxToLoad){
         if (_currentFile == null || _currentFile.Length < 2) // header + data row
         {
             Debug.Log("currentFile array is null or empty");
             return -1;
         }
 
-        if (nextIdx < _currentFile.Length)
+        if (idxToLoad < _currentFile.Length)
         {
-            currentPoseCoords = _currentFile[nextIdx].Split(',');
-            currentSkeletonIndex = nextIdx;
+            currentPoseCoords = _currentFile[idxToLoad].Split(',');
             return 0;
         }
 
@@ -81,24 +85,79 @@ public class DebugRenderer : MonoBehaviour
         return 0;
     }
 
-    void Update()
-    {
-        if (advanceSkeleton)
+    void Update(){
+        if (currentSkeletonIndex != skeletonIndexToLoad)
         {
-            loadNextSkeleton(currentSkeletonIndex);
-            advanceSkeleton = false;
+            loadSkeleton(skeletonIndexToLoad);
+            currentSkeletonIndex = skeletonIndexToLoad;
         }
+        text_currentSkeletonIndex.text = "currentSkeletonIndex: " + currentSkeletonIndex;
         updateBlockman(currentPoseCoords);
+
+        
+        // x += Time.deltaTime * 10;
+        // blockmanParent.transform.rotation = Quaternion.Euler(x,0,0);
     }
 
-    public void updateSkeleton()
-    {
-        advanceSkeleton = true;
-        Debug.Log("update skeleton");
+    public void loadNextSkeleton(){
+        if(skeletonIndexToLoad < _currentFile.Length) {
+            skeletonIndexToLoad = currentSkeletonIndex + 1;
+            Debug.Log("loadNextSkeleton");
+        } else {
+            Debug.Log("loadNextSkeleton reached limit");
+        }
     }
 
-    void updateBlockman(string[] skeletonString)
-    {
+    public void loadPrevSkeleton(){
+        if(skeletonIndexToLoad > 0) {
+            skeletonIndexToLoad = currentSkeletonIndex - 1;
+            Debug.Log("loadPrevSkeleton");
+        } else {
+            Debug.Log("loadPrevSkeleton reached limit");
+        }
+    }
+
+    private string[] labelCurrentSkeleton(string[] labels, int index, string label) {
+        string[] labelsCopy = (string[]) labels.Clone(); // shallow copy
+        if (labelsCopy != null && index < labelsCopy.Length) {
+            labelsCopy[index] = label;
+            Debug.Log("markAs_" + label);
+            loadNextSkeleton();
+        } else {
+            Debug.Log("markAs_" + label + " index error");
+        }
+        return labelsCopy;
+    }
+    public void markAsStanding(){
+        poseLabels = labelCurrentSkeleton(poseLabels, currentSkeletonIndex, "standing,");
+    }
+
+    public void markAsSquatDown(){
+        poseLabels = labelCurrentSkeleton(poseLabels, currentSkeletonIndex, "squatDown,");
+    }
+
+    public void markAsSquatUp(){
+        poseLabels = labelCurrentSkeleton(poseLabels, currentSkeletonIndex, "squatUp,");
+    }
+
+    public void markAsSquatBottom(){
+        poseLabels = labelCurrentSkeleton(poseLabels, currentSkeletonIndex, "squatBottom,");
+    }
+
+    public void writePoseArrayToFile(){
+        string currFilePath = filePaths[currentFileIndex];
+        string folder = @"squat-front-100-dan-csv\";
+        string[] parts = currFilePath.Split(new string[] { folder }, StringSplitOptions.None);
+        string newFilePath = parts[0] + @"squat-front-100-dan-csv\labelledPoses\" + parts[1];
+        using(StreamWriter writetext = new StreamWriter(@"D:\Downloads\squat-front-100-dan-csv")){
+            for(int i=0;i<_currentFile.Length;i++) {
+                writetext.WriteLine(_currentFile[i] + poseLabels[i]);
+            }
+        }
+        Debug.Log("Wrote to " + newFilePath);
+    }
+
+    void updateBlockman(string[] skeletonString){
         for (var i = 0; i < (int)JointId.Count; i++)
         {
             var x = float.Parse(skeletonString[i*3 + 0]);
@@ -110,8 +169,7 @@ public class DebugRenderer : MonoBehaviour
         }
     }
 
-    string[] getPoseFiles()
-    {
+    string[] getPoseFiles(){
         Debug.Log("get files");
         DirectoryInfo d = new DirectoryInfo(@"D:\Downloads\squat-front-100-dan-csv");
         FileInfo[] Files = d.GetFiles("*.txt");
@@ -129,16 +187,17 @@ public class DebugRenderer : MonoBehaviour
         return filePaths;
     }
 
-    GameObject[] makeBlockman()
-    {
+    GameObject[] makeBlockman(){
         GameObject[] debugObjects = new GameObject[(int)JointId.Count];
         for (var i = 0; i < (int)JointId.Count; i++)
         {
             var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cube.name = Enum.GetName(typeof(JointId), i);
             cube.transform.localScale = Vector3.one * 0.4f;
+            cube.transform.parent = blockmanParent.transform;
             debugObjects[i] = cube;
         }
         return debugObjects;
     }
+
 }
