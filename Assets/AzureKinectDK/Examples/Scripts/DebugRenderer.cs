@@ -182,7 +182,7 @@ public class DebugRenderer : MonoBehaviour
             var z = float.Parse(skeletonString[i*3 + 2]);
 
             var v = new Vector3(x, -y, z) * 0.004f;
-            blockman[i].transform.position = v;
+            blockman[i].transform.localPosition = v;
         }
     }
 
