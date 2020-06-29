@@ -59,7 +59,7 @@ public class DebugRenderer : MonoBehaviour
         }
 
         text_currentFileIndex.text = currentFilePath;
-        
+
         currentPoseCoords = _currentFile[1].Split(',');
         currentFileIndex = fileIndex;
         Debug.Log("Loaded @ index " + fileIndex);
@@ -84,9 +84,6 @@ public class DebugRenderer : MonoBehaviour
             Debug.Log("currentFile array is null or empty");
             return -1;
         }
-
-        skeletonIndexToLoad = 0;
-        currentSkeletonIndex = 0;
         
         if (idxToLoad < _currentFile.Length)
         {
@@ -94,6 +91,8 @@ public class DebugRenderer : MonoBehaviour
             return 0;
         }
 
+        skeletonIndexToLoad = 0;
+        writePoseArrayToFile();
         loadNextFile();
 
         return 0;
