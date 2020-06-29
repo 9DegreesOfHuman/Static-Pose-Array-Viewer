@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using UnityEngine.UI;
 using System.Collections;
@@ -28,12 +28,6 @@ public class DebugRenderer : MonoBehaviour
     void Start(){
         Debug.Log("start");
         blockman = makeBlockman();
-        // blockman.parent = blockmanParent.transform;
-        // blockmanParent.transform.Rotate(0.0f, 90.0f, 0.0f);
-        // Vector3 target = new Vector3(0.55f, 0.0f, 4.75f);
-        // blockmanParent.transform.RotateAround(target, Vector3.up, Time.deltaTime * 33.0f);
-        // blockmanParent.transform.RotateAround(blockmanParentRotateAxis.transform.position, Vector3.up, Time.deltaTime * 33.0f);
-        // blockmanParent.transform.rotation = Quaternion.Euler(90,0,0);
         filePaths = getPoseFiles();
         loadFile(currentFileIndex);
     }
@@ -109,12 +103,8 @@ public class DebugRenderer : MonoBehaviour
             loadSkeleton(skeletonIndexToLoad);
             currentSkeletonIndex = skeletonIndexToLoad;
         }
-        text_currentSkeletonIndex.text = "currentSkeletonIndex: " + currentSkeletonIndex;
+        text_currentSkeletonIndex.text = "current: " + currentSkeletonIndex + " - total: " + _currentFile.Length;
         updateBlockman(currentPoseCoords);
-
-        
-        // x += Time.deltaTime * 10;
-        // blockmanParent.transform.rotation = Quaternion.Euler(x,0,0);
     }
 
     public void loadNextSkeleton(){
@@ -169,12 +159,32 @@ public class DebugRenderer : MonoBehaviour
         string currFilePath = filePaths[currentFileIndex];                                      // "D:\Downloads\squat-front-100-dan-csv\6112020_101909-PM.txt"
         string[] parts = currFilePath.Split(new string[] { folder }, StringSplitOptions.None);  // ["D:\Downloads\",                                  "6112020_101909-PM.txt"]
         string newFilePath = parts[0] + folder + @"labelledPoses\" + parts[1];                  // "D:\Downloads\squat-front-100-dan-csv\labelledPoses\6112020_101909-PM.txt"
+        Debug.Log("Writing to " + newFilePath);
+        string data = "";
         // using(StreamWriter writetext = new StreamWriter(folderPath)){
-        //     for(int i=0;i<_currentFile.Length;i++) {
-        //         writetext.WriteLine(_currentFile[i] + poseLabels[i]);
-        //     }
+            for(int i=0;i<_currentFile.Length;i++) {
+                // writetext.WriteLine(_currentFile[i] + poseLabels[i]);
+                data = data + _currentFile[i] + poseLabels[i] + "\n";
+            }
         // }
-        Debug.Log("Wrote to " + newFilePath);
+        
+         bool retValue = false;
+         string dataPath = parts[0] + folder + @"labelledPoses\";
+         string fileName = parts[1];
+         try {
+             if (!Directory.Exists (dataPath)) {
+                 Directory.CreateDirectory (dataPath);
+             }
+             dataPath += fileName;
+
+             System.IO.File.WriteAllText (dataPath, data);
+             retValue = true;
+         } catch (System.Exception ex) {
+             string ErrorMessages = "File Write Error\n" + ex.Message;
+             retValue = false;
+             Debug.LogError (ErrorMessages);
+         }
+        Debug.Log("done: " + retValue);
     }
 
     void updateBlockman(string[] skeletonString){
