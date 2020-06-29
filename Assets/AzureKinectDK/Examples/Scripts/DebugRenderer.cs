@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using UnityEngine.UI;
 using System.Collections;
@@ -16,12 +16,14 @@ public class DebugRenderer : MonoBehaviour
     public string folderPath = @"D:\Downloads\squat-front-100-dan-csv";
     string[] filePaths;
     int currentFileIndex = 0;
+    int fileIndexToLoad = 0;
     string[] _currentFile;
     int currentSkeletonIndex = 1;
     int skeletonIndexToLoad = 1;
     string[] currentPoseCoords;
     string[] poseLabels;
     public Text text_currentSkeletonIndex;
+    public Text text_currentFileIndex;
     float x;
     public InputField skeletonIndexInput;
 
@@ -45,7 +47,7 @@ public class DebugRenderer : MonoBehaviour
         }
 
         string currentFilePath = filePaths[fileIndex];
-        Debug.Log(currentFilePath);
+        Debug.Log("Loading " + currentFilePath);
         _currentFile = System.IO.File.ReadAllLines(@currentFilePath);
         poseLabels = new string[_currentFile.Length];
         // Debug.Log(lines[0]); // headers
@@ -56,8 +58,11 @@ public class DebugRenderer : MonoBehaviour
             return -1;
         }
 
+        text_currentFileIndex.text = currentFilePath;
+        
         currentPoseCoords = _currentFile[1].Split(',');
-
+        currentFileIndex = fileIndex;
+        Debug.Log("Loaded @ index " + fileIndex);
         return 0;
     }
     
@@ -80,21 +85,39 @@ public class DebugRenderer : MonoBehaviour
             return -1;
         }
 
+        skeletonIndexToLoad = 0;
+        currentSkeletonIndex = 0;
+        
         if (idxToLoad < _currentFile.Length)
         {
             currentPoseCoords = _currentFile[idxToLoad].Split(',');
             return 0;
         }
 
-        if (filePaths == null || filePaths.Length < 2) // header + data row
-        {
-            Debug.Log("filePaths array is null or empty");
-            return -1;
-        }
-
-        Debug.Log("load next file");
+        loadNextFile();
 
         return 0;
+    }
+
+
+    public void loadNextFile(){
+        if(fileIndexToLoad < filePaths.Length) {
+            fileIndexToLoad = currentFileIndex + 1;
+            loadFile(fileIndexToLoad);
+            Debug.Log("loadNextSkeleton");
+        } else {
+            Debug.Log("loadNextSkeleton reached limit");
+        }
+    }
+
+    public void loadPrevFile(){
+        if(fileIndexToLoad > 0) {
+            fileIndexToLoad = currentFileIndex - 1;
+            loadFile(fileIndexToLoad);
+            Debug.Log("loadPrevSkeleton");
+        } else {
+            Debug.Log("loadPrevSkeleton reached limit");
+        }
     }
 
     void Update(){
