@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using UnityEngine.UI;
 using System.Collections;
@@ -24,8 +24,8 @@ public class DebugRenderer : MonoBehaviour
     string[] poseLabels;
     public Text text_currentSkeletonIndex;
     public Text text_currentFileIndex;
-    float x;
     public InputField skeletonIndexInput;
+    public InputField filePathInput;
     int numJoints = 0;
 
     void Start(){
@@ -262,12 +262,13 @@ public class DebugRenderer : MonoBehaviour
 
         string currFilePath = filePaths[currentFileIndex];                                      // "D:\Downloads\squat-front-100-dan-csv\6112020_101909-PM.txt"
         string[] parts = currFilePath.Split(new string[] { folder }, StringSplitOptions.None);  // ["D:\Downloads\",                                  "6112020_101909-PM.txt"]
+        string fileExt = parts[1].Substring(0,parts[1].Length-3) + ".csv";
         string newFilePath = parts[0] + folder + @"labelledPoses\" + parts[1];                  // "D:\Downloads\squat-front-100-dan-csv\labelledPoses\6112020_101909-PM.txt"
         Debug.Log("Writing to " + newFilePath);
         string data = "";
-            for(int i=0;i<_currentFile.Length;i++) {
-                data = data + _currentFile[i] + poseLabels[i] + "\n";
-            }
+        for(int i=0;i<_currentFile.Length;i++) {
+            data = data + _currentFile[i] + poseLabels[i] + "\n";
+        }
         
          bool retValue = false;
          string dataPath = parts[0] + folder + @"labelledPoses\";
@@ -294,10 +295,11 @@ public class DebugRenderer : MonoBehaviour
             var x = float.Parse(skeletonString[i*3 + 0]);
             var y = float.Parse(skeletonString[i*3 + 1]);
             var z = float.Parse(skeletonString[i*3 + 2]);
-
+            
             var v = new Vector3(x, -y, z) * 0.004f;
             blockman[i].transform.localPosition = v;
         }
+        loadNextSkeleton();
     }
 
     string[] getPoseFiles(){
@@ -309,6 +311,7 @@ public class DebugRenderer : MonoBehaviour
         for (int i=0;i<Files.Length;i++)
         {
             filePaths[i] = Files[i].FullName;
+            // Debug.Log("loaded " + filePaths[i]);
         }
         
         return filePaths;
