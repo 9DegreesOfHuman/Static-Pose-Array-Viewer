@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using UnityEngine.UI;
 using System.Collections;
@@ -68,7 +68,7 @@ public class DebugRenderer : MonoBehaviour
     
     public void loadSkeletonFromInput() {
         string value = skeletonIndexInput.text;
-        if(string.IsNullOrEmpty(value)) Debug.LogError("Player Name is empty");
+        if(string.IsNullOrEmpty(value)) Debug.LogError("Skeleton index is empty");
         
         if (Int32.TryParse(value, out int numValue)) {
             skeletonIndexToLoad = numValue;
@@ -183,12 +183,9 @@ public class DebugRenderer : MonoBehaviour
         string newFilePath = parts[0] + folder + @"labelledPoses\" + parts[1];                  // "D:\Downloads\squat-front-100-dan-csv\labelledPoses\6112020_101909-PM.txt"
         Debug.Log("Writing to " + newFilePath);
         string data = "";
-        // using(StreamWriter writetext = new StreamWriter(folderPath)){
             for(int i=0;i<_currentFile.Length;i++) {
-                // writetext.WriteLine(_currentFile[i] + poseLabels[i]);
                 data = data + _currentFile[i] + poseLabels[i] + "\n";
             }
-        // }
         
          bool retValue = false;
          string dataPath = parts[0] + folder + @"labelledPoses\";
