@@ -26,9 +26,14 @@ public class DebugRenderer : MonoBehaviour
     public Text text_currentFileIndex;
     float x;
     public InputField skeletonIndexInput;
+    int numJoints = 0;
 
     void Start(){
         Debug.Log("start");
+
+        numJoints = (int)JointId.Count;
+        if (numJoints < 32) numJoints = 32;
+
         blockman = makeBlockman();
         filePaths = getPoseFiles();
         loadFile(currentFileIndex);
@@ -207,7 +212,7 @@ public class DebugRenderer : MonoBehaviour
     }
 
     void updateBlockman(string[] skeletonString){
-        for (var i = 0; i < (int)JointId.Count; i++)
+        for (var i = 0; i < numJoints; i++)
         {
             var x = float.Parse(skeletonString[i*3 + 0]);
             var y = float.Parse(skeletonString[i*3 + 1]);
@@ -233,8 +238,8 @@ public class DebugRenderer : MonoBehaviour
     }
 
     GameObject[] makeBlockman(){
-        GameObject[] debugObjects = new GameObject[(int)JointId.Count];
-        for (var i = 0; i < (int)JointId.Count; i++)
+        GameObject[] debugObjects = new GameObject[numJoints];
+        for (var i = 0; i < numJoints; i++)
         {
             var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cube.name = Enum.GetName(typeof(JointId), i);
