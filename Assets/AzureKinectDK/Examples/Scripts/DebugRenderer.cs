@@ -36,7 +36,84 @@ public class DebugRenderer : MonoBehaviour
 
         blockman = makeBlockman();
         filePaths = getPoseFiles();
+
+        // correctFiles(); // use if the file strings need any modification
+
         loadFile(currentFileIndex);
+    }
+
+    int correctFiles() {
+        Debug.Log($"correcing {filePaths.Length} files");
+        for (int i = 0; i < filePaths.Length; i++) {
+            if (filePaths == null || filePaths.Length < 1) {
+                Debug.Log("filePaths array is null or empty");
+                return -1;
+            }
+            if (i >= filePaths.Length) {
+                Debug.Log("reached end of file list");
+                return -1;
+            }
+
+            Debug.Log("filePaths array is ok");
+
+            string currentFilePath = filePaths[i];
+            string[] thisFile = System.IO.File.ReadAllLines(@currentFilePath);
+            if (thisFile == null || thisFile.Length < 2) { // header + data row 
+                Debug.Log("thisFile array is null or empty");
+                return -1;
+            }
+
+            for (int j = 0; j < filePaths.Length; j++) {
+                thisFile[j] = thisFile[j].Replace("/", ",");
+            }
+            Debug.Log("replaced files");
+
+            string[] folderParts = currentFilePath.Split('\\');                                          // ["D:", "Downloads", "squat-front-100-dan-csv"]
+            Debug.Log($"folderParts: {string.Join("^", folderParts)}");
+            // folderParts: D: ^path ^ skeletalData ^ butterfly - front.txt
+
+            string folder = folderParts[folderParts.Length - 2] + @"\";                             //                     "squat-front-100-dan-csv\"
+            Debug.Log($"folder: {folder}");
+
+            string currFilePath = filePaths[i];                                      // "D:\Downloads\squat-front-100-dan-csv\6112020_101909-PM.txt"
+            Debug.Log($"currFilePath: {currFilePath}");
+            string[] parts = currFilePath.Split(new string[] { folder }, StringSplitOptions.None);  // ["D:\Downloads\",                                  "6112020_101909-PM.txt"]
+            Debug.Log(parts.Length);
+            Debug.Log(parts[0]);
+            Debug.Log(parts[1]);
+            string fileExt = parts[1].Substring(0, parts[1].Length - 3) + ".csv";
+            string newFilePath = parts[0] + folder + @"labelledPoses\" + parts[1];                  // "D:\Downloads\squat-front-100-dan-csv\labelledPoses\6112020_101909-PM.txt"
+            Debug.Log("Writing to " + newFilePath);
+            string data = "";
+            for (int k = 0; k < thisFile.Length; k++)
+            {
+                data = data + thisFile[i] + "\n";
+            }
+
+            bool retValue = false;
+            string dataPath = parts[0] + folder + @"labelledPoses\";
+            string fileName = parts[1];
+            try
+            {
+                if (!Directory.Exists(dataPath))
+                {
+                    Directory.CreateDirectory(dataPath);
+                }
+                dataPath += fileName;
+
+                System.IO.File.WriteAllText(dataPath, data);
+                retValue = true;
+            }
+            catch (System.Exception ex)
+            {
+                string ErrorMessages = "File Write Error\n" + ex.Message;
+                retValue = false;
+                Debug.LogError(ErrorMessages);
+            }
+            Debug.Log("done: " + retValue);
+        }
+        Debug.Log("done with all files");
+        return 0;
     }
 
     int loadFile(int fileIndex){
