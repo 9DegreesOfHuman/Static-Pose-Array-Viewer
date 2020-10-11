@@ -26,6 +26,10 @@ public class DebugRenderer : MonoBehaviour
     public Text text_currentFileIndex;
     public InputField skeletonIndexInput;
     public InputField filePathInput;
+    public InputField markAs1;
+    public InputField markAs2;
+    public InputField markAs3;
+    public InputField markAs4;
     int numJoints = 0;
 
     void Start(){
@@ -209,6 +213,11 @@ public class DebugRenderer : MonoBehaviour
         }
         text_currentSkeletonIndex.text = "current: " + currentSkeletonIndex + " - total: " + _currentFile.Length;
         updateBlockman(currentPoseCoords);
+
+        if(Input.GetKeyDown(KeyCode.Keypad1)) { markAs_onClick1(); }
+        if(Input.GetKeyDown(KeyCode.Keypad2)) { markAs_onClick2(); }
+        if(Input.GetKeyDown(KeyCode.Keypad3)) { markAs_onClick3(); }
+        if(Input.GetKeyDown(KeyCode.Keypad4)) { markAs_onClick4(); }
     }
 
     public void loadNextSkeleton(){
@@ -240,20 +249,21 @@ public class DebugRenderer : MonoBehaviour
         }
         return labelsCopy;
     }
-    public void markAsStanding(){
-        poseLabels = labelCurrentSkeleton(poseLabels, currentSkeletonIndex, "standing,");
+
+    public void markAs_onClick1(){ // Debug.Log("markAs_onClick1: " + markAs1.text);
+        poseLabels = labelCurrentSkeleton(poseLabels, currentSkeletonIndex, "," + markAs1.text + ",");
     }
 
-    public void markAsSquatDown(){
-        poseLabels = labelCurrentSkeleton(poseLabels, currentSkeletonIndex, "squatDown,");
+    public void markAs_onClick2(){ // Debug.Log("markAs_onClick2: " + markAs2.text);
+        poseLabels = labelCurrentSkeleton(poseLabels, currentSkeletonIndex, "," + markAs2.text + ",");
     }
 
-    public void markAsSquatUp(){
-        poseLabels = labelCurrentSkeleton(poseLabels, currentSkeletonIndex, "squatUp,");
+    public void markAs_onClick3(){ // Debug.Log("markAs_onClick3: " + markAs3.text);
+        poseLabels = labelCurrentSkeleton(poseLabels, currentSkeletonIndex, "," + markAs3.text + ",");
     }
 
-    public void markAsSquatBottom(){
-        poseLabels = labelCurrentSkeleton(poseLabels, currentSkeletonIndex, "squatBottom,");
+    public void markAs_onClick4(){ // Debug.Log("markAs_onClick4: " + markAs4.text);
+        poseLabels = labelCurrentSkeleton(poseLabels, currentSkeletonIndex, "," + markAs4.text + ",");
     }
 
     public void writePoseArrayToFile(){
@@ -290,16 +300,34 @@ public class DebugRenderer : MonoBehaviour
     }
 
     void updateBlockman(string[] skeletonString){
+        // Debug.Log(string.Join(",", skeletonString));
+
+        int sizeOfJointArray = 5;
+        // Joint,Pelvis,-18.73407,-125.5482,1376.917,
         for (var i = 0; i < numJoints; i++)
         {
-            var x = float.Parse(skeletonString[i*3 + 0]);
-            var y = float.Parse(skeletonString[i*3 + 1]);
-            var z = float.Parse(skeletonString[i*3 + 2]);
-            
+            var jointSeparatorStr = skeletonString[i * sizeOfJointArray + 0];
+            var jointNameStr = skeletonString[i * sizeOfJointArray + 1];
+            var xStr = skeletonString[i * sizeOfJointArray + 2];
+            var yStr = skeletonString[i * sizeOfJointArray + 3];
+            var zStr = skeletonString[i * sizeOfJointArray + 4];
+
+            // Debug.Log("\n" + "jointSeparatorStr:" + jointSeparatorStr);
+            // Debug.Log("jointNameStr:" + jointNameStr);
+
+            // Debug.Log("xStr:" + xStr);
+            var x = float.Parse(xStr);
+
+            // Debug.Log("yStr:" + yStr);
+            var y = float.Parse(yStr);
+
+            // Debug.Log("zStr:" + zStr + "\n");
+            var z = float.Parse(zStr);
+
             var v = new Vector3(x, -y, z) * 0.004f;
             blockman[i].transform.localPosition = v;
         }
-        loadNextSkeleton();
+        //loadNextSkeleton();
     }
 
     string[] getPoseFiles(){

@@ -1,0 +1,6 @@
+
+stand 0-61
+down 62-89
+bottom 90-96
+up 97-
+stand 
